@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
+	"html/template"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"os"
 )
@@ -12,20 +13,37 @@ const FileName = "file.json"
 
 func main() {
 
-	flag.Parse()
-	uri := flag.Arg(0)
+	http.HandleFunc("/", indexHandler)
+	http.ListenAndServe(":54321", nil)
 
-	u, _ := url.Parse(uri)
+}
 
+func indexHandler(w http.ResponseWriter, r *http.Request) {
 	db, _ := readDB()
-
 	if db == nil {
 		db = make(map[string]string)
 	}
 
-	db[u.Host] = uri
+	switch r.Method {
+	case "GET":
+		t, _ := template.ParseFiles("index.html")
+		t.Execute(w, db)
+	case "POST":
+		uri := r.FormValue("url")
+		del := r.FormValue("delete")
+		u, _ := url.Parse(uri)
 
-	writeDB(db)
+		if del == "true" {
+			delete(db, u.Host)
+		} else {
+			db[u.Host] = uri
+		}
+
+		writeDB(db)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
 }
 
 func readDB() (map[string]string, error) {

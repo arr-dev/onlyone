@@ -1,0 +1,18 @@
+<h1>Links</h1>
+
+<form action="/" method="POST">
+  <div><input name="url"></input></div>
+  <div><input type="submit" value="Add"></div>
+</form>
+
+<div>
+{{ range $host, $link := . }}
+   <div><a target="_blank" href="{{ $link }}">{{ $host }}</a></div>
+  <form action="/" method="POST">
+    <input type="hidden" name="url" value="{{ $link }}"></input>
+    <input type="hidden" name="delete" value="true"></input>
+    <input type="submit" value="Remove">
+  </form>
+{{ end }}
+</div>
+
