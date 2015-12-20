@@ -1,0 +1,8 @@
+{
+	"ImportPath": "github.com/arr-dev/onlyone",
+	"GoVersion": "go1.5.1",
+	"Packages": [
+		"./..."
+	],
+	"Deps": []
+}
