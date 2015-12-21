@@ -1,18 +1,49 @@
-<h1>Links</h1>
+<html>
+<head>
+  <title>There can be only one...</title>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
-<form action="/" method="POST">
-  <div><input name="url"></input></div>
-  <div><input type="submit" value="Add"></div>
-</form>
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-<div>
-{{ range $host, $link := . }}
-   <div><a target="_blank" href="{{ $link }}">{{ $host }}</a></div>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>Links</h1>
+
   <form action="/" method="POST">
-    <input type="hidden" name="url" value="{{ $link }}"></input>
-    <input type="hidden" name="delete" value="true"></input>
-    <input type="submit" value="Remove">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Add</button>
+          </span>
+          <input type="text" class="form-control" name="link" placeholder="Add link...">
+        </div>
+      </div>
+    </div>
   </form>
-{{ end }}
-</div>
 
+  <div class="list-group">
+    {{ range . }}
+    <form action="/" method="POST" class="form-inline" role="add">
+      <div class="list-group-item">
+        <div class="row">
+          <div class="col-lg-6">
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+              <input type="hidden" name="id" value="{{ .Id }}"></input>
+              <input type="hidden" name="delete" value="true"></input>
+              <a target="_blank" class="" href="{{ .Link }}">{{ .Host }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    {{ end }}
+  </div>
+</body>
+</html>
