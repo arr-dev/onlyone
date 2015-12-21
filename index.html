@@ -37,7 +37,10 @@
               <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
               <input type="hidden" name="id" value="{{ .Id }}"></input>
               <input type="hidden" name="delete" value="true"></input>
-              <a target="_blank" class="" href="{{ .Link }}">{{ .Host }}</a>
+              <a target="_blank" class="" href="{{ .Link }}">
+                <img src="{{ .ThumbUrl.Value }}" alt="{{ .Host }}" />
+                {{ .Host }}
+              </a>
             </div>
           </div>
         </div>

@@ -13,9 +13,10 @@ import (
 )
 
 type Link struct {
-	Id   int
-	Host string
-	Link string
+	Id       int
+	Host     string
+	Link     string
+	ThumbUrl sql.NullString
 }
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/thumb", thumbHandler)
 	http.ListenAndServe(":"+port, nil)
 
 }
@@ -44,13 +46,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-	log.Println("db")
-	handleErr(err)
-	err = db.Ping()
-	log.Println("db1")
-	handleErr(err)
-	log.Println("db2")
+	db := connectDb()
 
 	switch r.Method {
 	case "GET":
@@ -74,10 +70,36 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// PUT /thumb host=explosm.net&uri=http://explosm.net/favicons/favicon.ico
+func thumbHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
+		http.NotFound(w, r)
+		return
+	}
+	err := checkAuth(w, r)
+	if err != nil {
+		log.Printf("auth failed %q", err)
+		return
+	}
+	db := connectDb()
+
+	host := r.FormValue("host")
+	uri := r.FormValue("uri")
+
+	if host != "" && uri != "" {
+		log.Printf("update host %s with thumb uri: %s", host, uri)
+		stmt, err := db.Prepare("UPDATE hosts SET thumb_url = $1, updated_at = $2 WHERE host = $3")
+		handleErr(err)
+
+		_, err = stmt.Exec(uri, time.Now().UTC(), host)
+		handleErr(err)
+	}
+}
+
 func list(db *sql.DB, w http.ResponseWriter) {
 	data := []Link{}
 	rows, err := db.Query(`
-		SELECT l.id, h.host, l.link FROM links l
+		SELECT l.id, h.host, l.link, h.thumb_url FROM links l
 		INNER JOIN hosts h ON l.host_id = h.id
 	`)
 	handleErr(err)
@@ -88,7 +110,7 @@ func list(db *sql.DB, w http.ResponseWriter) {
 	for rows.Next() {
 		record := Link{}
 		log.Println("scan")
-		err = rows.Scan(&record.Id, &record.Host, &record.Link)
+		err = rows.Scan(&record.Id, &record.Host, &record.Link, &record.ThumbUrl)
 		handleErr(err)
 		data = append(data, record)
 	}
@@ -162,4 +184,16 @@ func checkAuth(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"user\"")
 	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 	return errors.New("unauthorized")
+}
+
+func connectDb() *sql.DB {
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	log.Println("db")
+	handleErr(err)
+	err = db.Ping()
+	log.Println("db1")
+	handleErr(err)
+	log.Println("db2")
+
+	return db
 }
