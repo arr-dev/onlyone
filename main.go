@@ -66,8 +66,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.Redirect(w, r, "/", http.StatusFound)
-		return
 	}
+
+	db.Close()
 }
 
 // PUT /thumb host=explosm.net&uri=http://explosm.net/favicons/favicon.ico
@@ -94,6 +95,8 @@ func thumbHandler(w http.ResponseWriter, r *http.Request) {
 		_, err = stmt.Exec(uri, time.Now().UTC(), host)
 		handleErr(err)
 	}
+
+	db.Close()
 }
 
 func list(db *sql.DB, w http.ResponseWriter) {
