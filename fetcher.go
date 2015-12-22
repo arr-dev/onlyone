@@ -35,9 +35,10 @@ func attemptFavicon(u *url.URL) (string, error) {
 }
 
 func fetchMetaTag(u *url.URL) (string, error) {
+	u.Path = "/"
+
 	log.Printf("fetch meta tag from %s", u)
 
-	u.Path = "/"
 	resp, err := http.Get(u.String())
 
 	if err == nil {
