@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
-	_ "github.com/lib/pq"
+	_ "github.com/arr-dev/onlyone/Godeps/_workspace/src/github.com/lib/pq"
 	"html/template"
 	"log"
 	"net/http"
