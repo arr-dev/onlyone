@@ -131,7 +131,7 @@ func remove(linkId string, db *sql.DB) {
 }
 
 func add(u *url.URL, db *sql.DB) {
-	hostId := getHost(u.Host, db)
+	hostId := getHost(u, db)
 
 	var linkId int
 	err := db.QueryRow("SELECT id FROM links WHERE host_id = $1", hostId).Scan(&linkId)
@@ -157,17 +157,20 @@ func add(u *url.URL, db *sql.DB) {
 	}
 }
 
-func getHost(host string, db *sql.DB) int {
-	log.Println("host: " + host)
+func getHost(u *url.URL, db *sql.DB) int {
+	log.Println("host: " + u.Host)
 	var hostId int
-	err := db.QueryRow("SELECT id FROM hosts WHERE host = $1", host).Scan(&hostId)
+	err := db.QueryRow("SELECT id FROM hosts WHERE host = $1", u.Host).Scan(&hostId)
 
 	if err == sql.ErrNoRows {
 		log.Println("create host")
-		err = db.QueryRow("INSERT INTO hosts (host, created_at, updated_at) values($1, $2, $2) RETURNING id", host, time.Now().UTC()).Scan(&hostId)
+		thumb, err := fetchIcon(*u)
+		log.Printf("got thumb %s", thumb)
+		err = db.QueryRow("INSERT INTO hosts (host, thumb_url, created_at, updated_at) values($1, $2, $3, $3) RETURNING id", u.Host, thumb, time.Now().UTC()).Scan(&hostId)
+		handleErr(err)
+	} else {
 		handleErr(err)
 	}
-	handleErr(err)
 	log.Printf("found host %d", hostId)
 
 	return hostId
