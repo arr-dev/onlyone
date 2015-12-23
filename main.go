@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -19,12 +20,16 @@ type Link struct {
 	ThumbUrl sql.NullString
 }
 
+var db *sql.DB
+
 func main() {
 	port := os.Getenv("PORT")
 
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
+
+	db = connectDb()
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/thumb", thumbHandler)
@@ -46,29 +51,25 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db := connectDb()
-
 	switch r.Method {
 	case "GET":
-		list(db, w)
+		list(w)
 	case "POST":
 		linkId := r.FormValue("id")
 		toDelete := r.FormValue("delete")
 		link := r.FormValue("link")
 
 		if linkId != "" && toDelete == "true" {
-			remove(linkId, db)
+			remove(linkId)
 		}
 
 		u, err := url.Parse(link)
 		if link != "" && err == nil {
-			add(u, db)
+			add(u)
 		}
 
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
-
-	db.Close()
 }
 
 // PUT /thumb host=explosm.net&uri=http://explosm.net/favicons/favicon.ico
@@ -82,7 +83,6 @@ func thumbHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("auth failed %q", err)
 		return
 	}
-	db := connectDb()
 
 	host := r.FormValue("host")
 	uri := r.FormValue("uri")
@@ -95,11 +95,9 @@ func thumbHandler(w http.ResponseWriter, r *http.Request) {
 		_, err = stmt.Exec(uri, time.Now().UTC(), host)
 		handleErr(err)
 	}
-
-	db.Close()
 }
 
-func list(db *sql.DB, w http.ResponseWriter) {
+func list(w http.ResponseWriter) {
 	data := []Link{}
 	rows, err := db.Query(`
 		SELECT l.id, h.host, l.link, h.thumb_url FROM links l
@@ -124,7 +122,7 @@ func list(db *sql.DB, w http.ResponseWriter) {
 	t.Execute(w, data)
 }
 
-func remove(linkId string, db *sql.DB) {
+func remove(linkId string) {
 	log.Printf("remove link %d", linkId)
 	stmt, err := db.Prepare("DELETE FROM links WHERE id = $1")
 	handleErr(err)
@@ -133,8 +131,8 @@ func remove(linkId string, db *sql.DB) {
 	handleErr(err)
 }
 
-func add(u *url.URL, db *sql.DB) {
-	hostId := getHost(u, db)
+func add(u *url.URL) {
+	hostId := getHost(u)
 
 	var linkId int
 	err := db.QueryRow("SELECT id FROM links WHERE host_id = $1", hostId).Scan(&linkId)
@@ -160,7 +158,7 @@ func add(u *url.URL, db *sql.DB) {
 	}
 }
 
-func getHost(u *url.URL, db *sql.DB) int {
+func getHost(u *url.URL) int {
 	log.Println("host: " + u.Host)
 	var hostId int
 	err := db.QueryRow("SELECT id FROM hosts WHERE host = $1", u.Host).Scan(&hostId)
@@ -196,6 +194,10 @@ func connectDb() *sql.DB {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	log.Println("db")
 	handleErr(err)
+	if max, err := strconv.Atoi(os.Getenv("DATABASE_MAX_CONNS")); err == nil && max > 0 {
+		log.Printf("max db conns %d", max)
+		db.SetMaxOpenConns(max)
+	}
 	err = db.Ping()
 	log.Println("db1")
 	handleErr(err)
