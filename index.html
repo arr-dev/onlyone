@@ -1,52 +1,60 @@
-<html>
-<head>
-  <title>There can be only one...</title>
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <title>There can be only one...</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-</head>
-<body>
-  <h1>Links</h1>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-  <form action="/" method="POST">
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="input-group">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="submit">Add</button>
-          </span>
-          <input type="text" class="form-control" name="link" placeholder="Add link...">
-        </div>
-      </div>
-    </div>
-  </form>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1>Links</h1>
 
-  <div class="list-group">
-    {{ range . }}
-    <form action="/" method="POST" class="form-inline" role="add">
-      <div class="list-group-item">
+      <form action="/" method="POST">
         <div class="row">
           <div class="col-lg-6">
-
-            <div class="form-group">
-              <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-              <input type="hidden" name="id" value="{{ .Id }}"></input>
-              <input type="hidden" name="delete" value="true"></input>
-              <a target="_blank" class="" href="{{ .Link }}">
-                <img src="{{ .ThumbUrl.Value }}" alt="{{ .Host }}" />
-                {{ .Host }}
-              </a>
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="submit" onclick="return confirm('Are you sure?')">Add</button>
+              </span>
+              <input type="text" class="form-control" name="link" placeholder="Add link...">
             </div>
           </div>
         </div>
+      </form>
+
+      <div class="list-group">
+        {{ range . }}
+        <form action="/" method="POST" class="form-inline" role="add">
+          <div class="list-group-item">
+            <div class="row">
+              <div class="col-lg-6">
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-default" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                  <input type="hidden" name="id" value="{{ .Id }}"></input>
+                  <input type="hidden" name="delete" value="true"></input>
+                  <a target="_blank" class="" href="{{ .Link }}">
+                    <img src="{{ .ThumbUrl.Value }}" alt="{{ .Host }}" />
+                    {{ .Host }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        {{ end }}
       </div>
-    </form>
-    {{ end }}
-  </div>
-</body>
+    </div>
+  </body>
 </html>
