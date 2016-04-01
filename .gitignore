@@ -1,0 +1,4 @@
+/onlyone
+terraform/terraform.tfvars
+terraform/terraform.tfstate*
+terraform/terraform.plan
