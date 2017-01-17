@@ -1,10 +1,10 @@
 resource "heroku_app" "onlyone" {
-  name = "${var.heroku_app_name}"
+  name   = "${var.heroku_app_name}"
   region = "${var.heroku_app_region}"
 
   config_vars {
-    AUTH_PASS = "${var.env_AUTH_PASS}"
-    AUTH_USER = "${var.env_AUTH_USER}"
+    AUTH_PASS          = "${var.env_AUTH_PASS}"
+    AUTH_USER          = "${var.env_AUTH_USER}"
     DATABASE_MAX_CONNS = "${var.env_DATABASE_MAX_CONNS}"
   }
 
@@ -14,6 +14,6 @@ resource "heroku_app" "onlyone" {
 }
 
 resource "heroku_addon" "db" {
-  app = "${heroku_app.onlyone.name}"
+  app  = "${heroku_app.onlyone.name}"
   plan = "heroku-postgresql:hobby-dev"
 }
