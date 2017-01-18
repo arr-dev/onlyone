@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -159,15 +160,16 @@ func add(u *url.URL) {
 }
 
 func getHost(u *url.URL) int {
-	log.Println("host: " + u.Host)
 	var hostId int
-	err := db.QueryRow("SELECT id FROM hosts WHERE host = $1", u.Host).Scan(&hostId)
+
+	host := urlToUniqKey(u)
+	err := db.QueryRow("SELECT id FROM hosts WHERE host = $1", host).Scan(&hostId)
 
 	if err == sql.ErrNoRows {
 		log.Println("create host")
 		thumb, err := fetchIcon(*u)
 		log.Printf("got thumb %s", thumb)
-		err = db.QueryRow("INSERT INTO hosts (host, thumb_url, created_at, updated_at) values($1, $2, $3, $3) RETURNING id", u.Host, thumb, time.Now().UTC()).Scan(&hostId)
+		err = db.QueryRow("INSERT INTO hosts (host, thumb_url, created_at, updated_at) values($1, $2, $3, $3) RETURNING id", host, thumb, time.Now().UTC()).Scan(&hostId)
 		handleErr(err)
 	} else {
 		handleErr(err)
@@ -175,6 +177,21 @@ func getHost(u *url.URL) int {
 	log.Printf("found host %d", hostId)
 
 	return hostId
+}
+
+func urlToUniqKey(u *url.URL) string {
+	log.Println("host: " + u.Host)
+	var host string
+
+	switch u.Host {
+	case "www.readcomics.tv":
+		key := strings.Split(u.Path, "/")[1]
+		host = u.Host + "/" + key
+	default:
+		host = u.Host
+	}
+
+	return host
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) error {
