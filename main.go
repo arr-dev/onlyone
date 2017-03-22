@@ -103,6 +103,7 @@ func list(w http.ResponseWriter) {
 	rows, err := db.Query(`
 		SELECT l.id, h.host, l.link, h.thumb_url FROM links l
 		INNER JOIN hosts h ON l.host_id = h.id
+		ORDER BY l.updated_at DESC
 	`)
 	handleErr(err)
 	log.Println("query")
