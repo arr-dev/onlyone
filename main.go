@@ -188,6 +188,9 @@ func urlToUniqKey(u *url.URL) string {
 	case "www.readcomics.tv":
 		key := strings.Split(u.Path, "/")[1]
 		host = u.Host + "/" + key
+	case "readcomiconline.to":
+		keys := strings.Split(u.Path, "/")[1:3]
+		host = u.Host + "/" + strings.Join(keys, "/")
 	default:
 		host = u.Host
 	}

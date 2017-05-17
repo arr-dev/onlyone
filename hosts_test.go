@@ -17,12 +17,17 @@ func TestSimpleHostKey(t *testing.T) {
 }
 
 func TestMultipleHostKey(t *testing.T) {
-	u, _ := url.Parse("http://www.readcomics.tv/the-unbeatable-squirrel-girl/chapter-3/24")
+	for uri, expected := range map[string]string{
+		"http://www.readcomics.tv/the-unbeatable-squirrel-girl/chapter-3/24": "www.readcomics.tv/the-unbeatable-squirrel-girl",
+		"http://readcomiconline.to/Comic/Jughead-2015/Issue-15?id=112397":    "readcomiconline.to/Comic/Jughead-2015",
+	} {
 
-	expected := "www.readcomics.tv/the-unbeatable-squirrel-girl"
-	got := urlToUniqKey(u)
+		u, _ := url.Parse(uri)
 
-	if got != expected {
-		t.Error("Expected ", expected, "Got ", got)
+		got := urlToUniqKey(u)
+
+		if got != expected {
+			t.Error("Expected ", expected, "Got ", got)
+		}
 	}
 }
