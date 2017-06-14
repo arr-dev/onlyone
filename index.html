@@ -15,6 +15,11 @@
     <script src="https://code.jquery.com/jquery-2.1.4.min.js" crossorigin="anonymous"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <style>
+      img.host-favicon {
+        width: 32px;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -44,10 +49,16 @@
                   <button type="submit" class="btn btn-default" onclick="return confirm('Are you sure?')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
                   <input type="hidden" name="id" value="{{ .Id }}"></input>
                   <input type="hidden" name="delete" value="true"></input>
+                  {{ if .ThumbUrl.Value }}
                   <a target="_blank" class="" href="{{ .Link }}">
-                    <img src="{{ .ThumbUrl.Value }}" alt="{{ .Host }}" />
                     {{ .Host }}
                   </a>
+                  {{ else }}
+                  <a target="_blank" class="" href="{{ .Link }}">
+                    <img class="img-thumbnail host-favicon" src="{{ .ThumbUrl.Value }}" alt="{{ .Host }}" />
+                    {{ .Host }}
+                  </a>
+                  {{ end }}
                 </div>
               </div>
             </div>
