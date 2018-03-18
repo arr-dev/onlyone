@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -125,7 +124,7 @@ func list(w http.ResponseWriter) {
 }
 
 func remove(linkId string) {
-	log.Printf("remove link %d", linkId)
+	log.Printf("remove link %v", linkId)
 	stmt, err := db.Prepare("DELETE FROM links WHERE id = $1")
 	handleErr(err)
 
@@ -181,21 +180,9 @@ func getHost(u *url.URL) int {
 }
 
 func urlToUniqKey(u *url.URL) string {
-	log.Println("host: " + u.Host)
-	var host string
+	host := parseHost(u)
 
-	switch u.Host {
-	case "www.readcomics.tv":
-		key := strings.Split(u.Path, "/")[1]
-		host = u.Host + "/" + key
-	case "readcomiconline.to":
-		keys := strings.Split(u.Path, "/")[1:3]
-		host = u.Host + "/" + strings.Join(keys, "/")
-	default:
-		host = u.Host
-	}
-
-	return host
+	return host.key
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) error {
