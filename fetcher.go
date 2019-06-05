@@ -10,7 +10,7 @@ import (
 )
 
 func fetchIcon(u url.URL) (string, error) {
-	log.Printf("fetch icon from %s", u)
+	log.Printf("fetch icon from %s", u.String())
 	uri, err := attemptFavicon(&u)
 
 	if err != nil {
