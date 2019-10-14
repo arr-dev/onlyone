@@ -20,7 +20,7 @@ jobs:
       run: |
         go get -v -t -d ./...
 
-    - name: Build
+    - name: Test
       run: go test -v .
       
   build:
