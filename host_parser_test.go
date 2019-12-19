@@ -27,6 +27,7 @@ func TestMultipleHostKey(t *testing.T) {
 		"https://youtu.be/watch?v=FkSFBcjOKHY&list=RDFkSFBcjOKHY":               "youtube.com/watch?list=RDFkSFBcjOKHY",
 		"https://youtu.be/watch?v=FkSFBcjOKHY":                                  "youtube.com/watch?v=FkSFBcjOKHY",
 		"https://www.facebook.com/humandiscoveriesshow/videos/501578117278841/": "facebook.com/humandiscoveriesshow",
+		"https://www.gocomics.com/sarahs-scribbles/2014/01/02":                  "www.gocomics.com/sarahs-scribbles",
 	} {
 
 		u, _ := url.Parse(uri)

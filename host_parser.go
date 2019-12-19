@@ -16,7 +16,7 @@ func parseHost(u *url.URL) *Host {
 	var host string
 
 	switch u.Host {
-	case "www.readcomics.tv":
+	case "www.readcomics.tv", "www.gocomics.com":
 		key := strings.Split(u.Path, "/")[1]
 		host = u.Host + "/" + key
 	case "readcomiconline.to", "kimcartoon.to":
