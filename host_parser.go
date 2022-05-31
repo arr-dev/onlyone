@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -15,13 +16,19 @@ func parseHost(u *url.URL) *Host {
 	log.Println("host: " + u.Host)
 	var host string
 
+	readcomiconlinePat := regexp.MustCompile(`readcomiconline\..*`)
+	kimcartoonPat := regexp.MustCompile(`kimcartoon\..*`)
+
 	switch u.Host {
 	case "www.readcomics.tv", "www.gocomics.com", "devdocs.io":
 		key := strings.Split(u.Path, "/")[1]
 		host = u.Host + "/" + key
-	case "readcomiconline.to", "readcomiconline.li", "kimcartoon.to":
+	case readcomiconlinePat.FindString(u.Host):
 		keys := strings.Split(u.Path, "/")[1:3]
-		host = u.Host + "/" + strings.Join(keys, "/")
+		host = "readcomiconline.to" + "/" + strings.Join(keys, "/")
+	case kimcartoonPat.FindString(u.Host):
+		keys := strings.Split(u.Path, "/")[1:3]
+		host = "kimcartoon.to" + "/" + strings.Join(keys, "/")
 	case "www.facebook.com", "facebook.com", "m.facebook.com":
 		host = "facebook.com"
 		keys := strings.Split(u.Path, "/")[1:2]
