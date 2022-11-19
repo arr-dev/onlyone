@@ -1,0 +1,5 @@
+# flyctl launch added from .gitignore
+onlyone
+**/terraform/terraform.tfvars
+**/terraform/terraform.tfstate*
+**/terraform/terraform.plan
