@@ -1,0 +1,16 @@
+name: Ping
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  webhook:
+    name: Ping webhook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use curl to ping webhook
+        env:
+          WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -n -sSI "$WEBHOOK_URL" -H "Authorization: Basic $WEBHOOK_TOKEN"
