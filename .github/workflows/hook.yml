@@ -13,4 +13,4 @@ jobs:
           WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          curl -n -sSI "$WEBHOOK_URL" -H "Authorization: Basic $WEBHOOK_TOKEN"
+          curl -X GET -n -sSI "$WEBHOOK_URL" -H "Authorization: Basic $WEBHOOK_TOKEN"
