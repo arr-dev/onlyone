@@ -11,20 +11,45 @@ import (
 type RSS struct {
 	XMLName xml.Name `xml:"rss"`
 	Version string   `xml:"version,attr"`
+	DC      string   `xml:"xmlns:dc,attr"`
+	Content string   `xml:"xmlns:content,attr"`
+	Atom    string   `xml:"xmlns:atom,attr"`
 	Channel Channel  `xml:"channel"`
 }
 
 type Channel struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	Description string `xml:"description"`
-	Items       []Item `xml:"item"`
+	AtomLink      AtomLink `xml:"atom:link"`
+	Title         string   `xml:"title"`
+	Description   string   `xml:"description"`
+	Link          string   `xml:"link"`
+	Language      string   `xml:"language"`
+	LastBuildDate string   `xml:"lastBuildDate"`
+	Items         []Item   `xml:"item"`
+}
+
+type AtomLink struct {
+	Href string `xml:"href,attr"`
+	Rel  string `xml:"rel,attr"`
+	Type string `xml:"type,attr"`
 }
 
 type Item struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	Description string `xml:"description"`
+	Title       CDATA     `xml:"title"`
+	Description CDATA     `xml:"description"`
+	Link        string    `xml:"link"`
+	Guid        string    `xml:"guid"`
+	PubDate     string    `xml:"pubDate"`
+	Enclosure   Enclosure `xml:"enclosure"`
+}
+
+type CDATA struct {
+	Value string `xml:",cdata"`
+}
+
+type Enclosure struct {
+	URL    string `xml:"url,attr"`
+	Type   string `xml:"type,attr"`
+	Length string `xml:"length,attr"`
 }
 
 func filterRSSFeed(feedURL, titlePattern string) ([]*gofeed.Item, error) {
@@ -48,25 +73,42 @@ func filterRSSFeed(feedURL, titlePattern string) ([]*gofeed.Item, error) {
 
 	return filteredItems, nil
 }
-
 func buildFeed(filteredItems []*gofeed.Item, feedURL string) RSS {
 	// Create RSS structure
 	rss := RSS{
 		Version: "2.0",
+		DC:      "http://purl.org/dc/elements/1.1/",
+		Content: "http://purl.org/rss/1.0/modules/content/",
+		Atom:    "http://www.w3.org/2005/Atom",
 		Channel: Channel{
-			Title:       "Filtered RSS Feed",
-			Link:        feedURL,
-			Description: "Filtered RSS feed based on the title pattern",
+			AtomLink: AtomLink{
+				Href: feedURL,
+				Rel:  "self",
+				Type: "application/rss+xml",
+			},
+			Title:         "Filtered RSS Feed",
+			Description:   "Filtered RSS feed based on the title pattern",
+			Link:          feedURL,
+			Language:      "en-us",
+			LastBuildDate: "Mon, 17 Feb 2025 17:12:23 +0100",
 		},
 	}
 
 	for _, item := range filteredItems {
 		rss.Channel.Items = append(rss.Channel.Items, Item{
-			Title:       item.Title,
+			Title:       CDATA{Value: item.Title},
+			Description: CDATA{Value: item.Description},
 			Link:        item.Link,
-			Description: item.Description,
+			Guid:        item.GUID,
+			PubDate:     item.Published,
+			Enclosure: Enclosure{
+				URL:    item.Enclosures[0].URL,
+				Type:   item.Enclosures[0].Type,
+				Length: "10000",
+			},
 		})
 	}
 
 	return rss
+
 }
