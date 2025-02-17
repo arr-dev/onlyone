@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/xml"
 	"errors"
 	_ "github.com/lib/pq"
 	"html/template"
@@ -33,6 +35,7 @@ func main() {
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/thumb", thumbHandler)
+	http.HandleFunc("/feed", feedHandler)
 	http.ListenAndServe(":"+port, nil)
 
 }
@@ -94,6 +97,38 @@ func thumbHandler(w http.ResponseWriter, r *http.Request) {
 
 		_, err = stmt.Exec(uri, time.Now().UTC(), host)
 		handleErr(err)
+	}
+}
+
+// GET /feed title=202&url=http://example.com/feed
+func feedHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.NotFound(w, r)
+		return
+	}
+	err := checkAuth(w, r)
+	if err != nil {
+		log.Printf("auth failed %q", err)
+		return
+	}
+
+	title := r.URL.Query().Get("title")
+	url := r.URL.Query().Get("url")
+
+	if title != "" && url != "" {
+		filteredItems, err := filterRSSFeed(url, title)
+		handleErr(err)
+
+		rss := buildFeed(filteredItems, url)
+
+		// Convert RSS structure to XML
+		var buffer bytes.Buffer
+		xmlEncoder := xml.NewEncoder(&buffer)
+		xmlEncoder.Indent("", "  ")
+		xmlEncoder.Encode(rss)
+
+		w.Header().Set("Content-Type", "application/rss+xml")
+		w.Write(buffer.Bytes())
 	}
 }
 
