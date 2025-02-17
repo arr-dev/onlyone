@@ -106,11 +106,11 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	err := checkAuth(w, r)
-	if err != nil {
-		log.Printf("auth failed %q", err)
-		return
-	}
+	// err := checkAuth(w, r)
+	// if err != nil {
+	// 	log.Printf("auth failed %q", err)
+	// 	return
+	// }
 
 	title := r.URL.Query().Get("title")
 	url := r.URL.Query().Get("url")
@@ -127,7 +127,7 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 		xmlEncoder.Indent("", "  ")
 		xmlEncoder.Encode(rss)
 
-		w.Header().Set("Content-Type", "application/rss+xml")
+		w.Header().Set("Content-Type", "text/xml")
 		w.Write(buffer.Bytes())
 	}
 }
